@@ -22,7 +22,7 @@ system prompt.
 
 ## What's Included
 
-### Skills (12 total)
+### Skills (14 total — full parity with upstream superpowers)
 
 The **canonical 7-step workflow** (matches the upstream superpowers):
 
@@ -49,7 +49,9 @@ Meta / bootstrap:
 
 | Skill | Purpose |
 |-------|---------|
-| `using-superpowers` | Bootstrap: how to find and invoke other skills (auto-injected) |
+| `using-superpowers` | Bootstrap: how to find and invoke other skills (auto-injected into the primary agent's system prompt) |
+| `dispatching-parallel-agents` | Dispatch multiple `delegate_task` calls in one response for concurrent investigation |
+| `writing-skills` | TDD applied to skill authoring (with `anthropic-best-practices`, `persuasion-principles`, `testing-skills-with-subagents` supporting files) |
 
 ### Flow diagram
 
