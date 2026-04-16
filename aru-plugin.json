@@ -1,0 +1,19 @@
+{
+  "name": "aru-superpowers",
+  "version": "1.0.0",
+  "description": "Engineering discipline skills for Aru: TDD, debugging, code review, verification workflows. Ported from obra/superpowers.",
+  "author": "Ported from obra/superpowers (Jesse Vincent <jesse@fsck.com>)",
+  "repository": "https://github.com/estevaofon/aru-superpowers",
+  "license": "MIT",
+  "engines": {
+    "aru": ">=0.27.0"
+  },
+  "keywords": [
+    "skills",
+    "tdd",
+    "debugging",
+    "code-review",
+    "workflows",
+    "verification"
+  ]
+}
