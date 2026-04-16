@@ -51,6 +51,14 @@ When a task or phase is complete, dispatch the `code-reviewer` subagent to valid
 
 6. **After fixes**: re-run tests (`/verification-before-completion`), then optionally re-dispatch review if the changes were substantial.
 
+7. **Load the next skill** to handle feedback properly:
+
+   ```python
+   invoke_skill(name="receiving-code-review")
+   ```
+
+   Do NOT just "apply the feedback" from memory — the `receiving-code-review` skill has specific protocols for verifying claims, pushing back with evidence, and avoiding sycophantic agreement. Load it before responding.
+
 ## When NOT to Invoke
 
 - In the middle of a task (wait until a logical unit is complete)

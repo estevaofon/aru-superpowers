@@ -91,7 +91,17 @@ Once all feedback is handled:
 
 1. Re-run `bash("pytest -q")` and any other verification commands
 2. Summarize to the user: what you applied, what you pushed back on, what you deferred
-3. If applicable, re-dispatch `/requesting-code-review` for substantial follow-up
+3. If the review loop is complete and all blocking issues are resolved, load the next skill:
+
+   ```python
+   invoke_skill(name="finishing-a-development-branch")
+   ```
+
+4. If changes were substantial, instead re-enter the review loop:
+
+   ```python
+   invoke_skill(name="requesting-code-review")
+   ```
 
 ## Related
 

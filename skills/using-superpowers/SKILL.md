@@ -107,13 +107,25 @@ When the user gives a signal advancing to the next phase — "vamos para impleme
 
 ### Transition rules
 
-| Just completed | User signal | Next skill |
-|----------------|-------------|-----------|
-| `/brainstorming` (spec written + approved) | "let's plan" / "write the plan" | `/writing-plans` |
-| `/writing-plans` (plan file written) | "let's implement" / "vamos para implementação" / "go" | `/subagent-driven-development` (preferred) or `/executing-plans` |
-| `/executing-plans` or `/subagent-driven-development` (all tasks green) | "review it" / "check the code" | `/requesting-code-review` |
-| `/requesting-code-review` (findings returned) | any acknowledgement | `/receiving-code-review` |
-| `/receiving-code-review` (blockers resolved) | "merge" / "ship it" / "finish" | `/finishing-a-development-branch` |
+Use the `invoke_skill` tool to load the next skill. Do NOT wait for the user to re-type the slash command.
+
+| Just completed | User signal | How to transition |
+|----------------|-------------|-------------------|
+| `/brainstorming` (spec approved) | "let's plan" / "write the plan" | `invoke_skill(name="writing-plans", arguments="<spec-path>")` |
+| `/writing-plans` (plan written) | "let's implement" / "vamos para implementação" / "go" | `invoke_skill(name="subagent-driven-development", arguments="<plan-path>")` (preferred) or `invoke_skill(name="executing-plans", arguments="<plan-path>")` |
+| `/executing-plans` or `/subagent-driven-development` (all tasks green) | "review it" / "check the code" | `invoke_skill(name="requesting-code-review")` |
+| `/requesting-code-review` (findings returned) | any acknowledgement | `invoke_skill(name="receiving-code-review")` |
+| `/receiving-code-review` (blockers resolved) | "merge" / "ship it" / "finish" | `invoke_skill(name="finishing-a-development-branch")` |
+
+### Why `invoke_skill` and not memory
+
+The skills' bodies are NOT in your context until loaded. They contain `<CRITICAL-GATE>` sections, checklist templates, and red-flag tables that you have not memorized — and WILL NOT correctly reproduce from memory. When you "just do the next phase" without calling `invoke_skill`, you reliably:
+
+- Recreate the previous skill's checklist instead of the new skill's entering actions
+- Skip gates the new skill enforces (e.g. Step 4 section walk, TDD RED verification)
+- Drift from the skill's explicit wording on red flags
+
+The `invoke_skill` tool call returns the target skill's full body as a tool_result in your next turn. That next turn THEN executes the skill correctly.
 
 ### Checklist hygiene on transition
 

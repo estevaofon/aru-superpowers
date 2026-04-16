@@ -175,8 +175,15 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ### Implementation
 
-- Invoke `/writing-plans` with the spec path as argument to create a detailed implementation plan.
-- Do NOT invoke any other skill. `/writing-plans` is the next step.
+Once the user has approved the written spec:
+
+```python
+invoke_skill(name="writing-plans", arguments="docs/aru/specs/<your-spec>.md")
+```
+
+**CRITICAL:** Use the `invoke_skill` tool. Do NOT try to write the plan from memory — the writing-plans SKILL.md has a `<CRITICAL-GATE>` Entering This Skill section and a checklist template that are **not in your context** until you call the tool. Improvising will skip those gates.
+
+Do NOT invoke any other skill. `/writing-plans` is the next step.
 
 ## Key Principles
 

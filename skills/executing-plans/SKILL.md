@@ -91,8 +91,19 @@ After the last task:
 1. Run the full test suite: `bash("pytest -q")`
 2. Run any linting / type checks the project uses (`bash("ruff check")`, `bash("mypy")`, etc.)
 3. `git log` to confirm commit history matches the plan's tasks
-4. Invoke `/requesting-code-review` to dispatch the code-reviewer subagent
-5. After review resolution, invoke `/finishing-a-development-branch`
+4. Load the code-review skill:
+
+   ```python
+   invoke_skill(name="requesting-code-review")
+   ```
+
+5. After review resolution, load the finishing skill:
+
+   ```python
+   invoke_skill(name="finishing-a-development-branch")
+   ```
+
+**CRITICAL:** Use `invoke_skill` in both steps. Each target skill's Entering gate has verification commands and gates that are NOT in your context until loaded.
 
 ## Related
 

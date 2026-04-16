@@ -130,3 +130,17 @@ If any box fails, fix the plan before handing it off.
 ## Final Output
 
 Write the plan to `docs/aru/plans/YYYY-MM-DD-<feature>.md` with `write_file` and announce the path to the user.
+
+## Transition to Implementation
+
+When the user approves the plan and signals readiness to implement:
+
+```python
+# Preferred (fresh subagent per task, two-stage review):
+invoke_skill(name="subagent-driven-development", arguments="docs/aru/plans/<your-plan>.md")
+
+# Fallback (sequential execution in main session):
+invoke_skill(name="executing-plans", arguments="docs/aru/plans/<your-plan>.md")
+```
+
+**CRITICAL:** Use `invoke_skill`. Do NOT try to execute the plan from memory — the implementation skills have `<CRITICAL-GATE>` "Entering This Skill" sections that mandate reading the plan and rebuilding the task_list from plan tasks. Improvising reuses the stale brainstorming/writing-plans checklist.

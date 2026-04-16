@@ -99,8 +99,11 @@ Read plan file ONCE
           │
           ▼  (next task)
   After all tasks:
-  Dispatch FINAL code-reviewer over the whole diff
-  Invoke /finishing-a-development-branch
+    1. Dispatch FINAL code-reviewer over the whole diff via:
+         delegate_task(task="...", agent_name="code-reviewer")
+    2. Load requesting-code-review skill for the full workflow:
+         invoke_skill(name="requesting-code-review")
+    3. After fixes: invoke_skill(name="finishing-a-development-branch")
 ```
 
 ## Setup Before Starting
