@@ -55,14 +55,51 @@ This plugin was ported from a Claude Code original. The skills use Aru tool name
 
 ```
 User message received
-  └─> Might any skill apply?
-        ├── yes (even 1%) → Run the skill → Announce "Following /<skill> to <purpose>"
-        │                   └── Has a checklist? → Mirror each step via `create_task_list`
-        │                                       → Follow the skill exactly
-        └── definitely not → Respond directly
+  └─> About to plan / scaffold / write code for a new feature or change?
+        ├── yes → Is there an approved design for this work?
+        │         ├── no  → /brainstorming (MANDATORY entry point)
+        │         └── yes → continue
+        └── no  → Might any other skill apply?
+                  ├── yes (even 1%) → Run the skill → Announce "Following /<skill> to <purpose>"
+                  │                   └── Has a checklist? → Mirror via `create_task_list`
+                  │                                       → Follow the skill exactly
+                  └── definitely not → Respond directly
 ```
 
-Before `enter_plan_mode`: If the user is about to have you plan an implementation, first consider `/brainstorming` (if the design is unsettled) or `/writing-plans` (if you already know the shape).
+## The Canonical Workflow (7 steps)
+
+Every non-trivial change flows through these skills, in this order. This matches the superpowers reference workflow exactly:
+
+```
+1. /brainstorming               ← entry point for ANY creative work
+      ↓ produces a spec doc in docs/aru/specs/
+2. /using-git-worktrees         ← isolate work on its own branch + worktree
+      ↓ clean baseline, tests passing
+3. /writing-plans               ← convert spec into bite-sized task checklist
+      ↓ produces a plan doc in docs/aru/plans/
+4. /subagent-driven-development (preferred, fresh subagent per task)
+      — OR —
+   /executing-plans             (fallback: batched, in main session)
+      ↓ per task, internally uses:
+         /test-driven-development    (RED → GREEN → REFACTOR)
+         /systematic-debugging       (when something fails)
+         /verification-before-completion (gate before marking a step done)
+5. /requesting-code-review      ← dispatches code-reviewer subagent
+      ↓ reviewer findings
+6. /receiving-code-review       ← handle feedback without sycophancy
+      ↓ all blocking issues resolved
+7. /finishing-a-development-branch  ← verify + present 4 options (merge/PR/keep/discard)
+```
+
+**Meta skills (not in the linear flow):**
+- `/dispatching-parallel-agents` — concurrent subagents for independent investigation tasks (e.g. 3 subagents analyzing 3 separate problem areas in one response)
+- `/writing-skills` — when you need to author a new skill
+
+Skipping the entry point (`/brainstorming`) is the #1 reason agents build the wrong thing. Even for a "tiny" change, a 30-second design discussion prevents 30 minutes of rework.
+
+Skipping step 2 (`/using-git-worktrees`) is the #1 reason "experiments" pollute main. Always isolate before writing code.
+
+Skipping step 7 (`/finishing-a-development-branch`) leaves orphaned worktrees, un-merged branches, and uncommitted work the user forgets about.
 
 ## Red Flags
 

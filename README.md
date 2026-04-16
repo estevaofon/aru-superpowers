@@ -22,18 +22,46 @@ system prompt.
 
 ## What's Included
 
-### Skills
+### Skills (12 total)
+
+The **canonical 7-step workflow** (matches the upstream superpowers):
+
+| Step | Skill | Purpose |
+|------|-------|---------|
+| 1 | `brainstorming` | **Entry point** — turn an idea into an approved design spec before any code |
+| 2 | `using-git-worktrees` | Isolate work on its own branch + clean test baseline |
+| 3 | `writing-plans` | Convert an approved spec into a bite-sized task checklist |
+| 4 | `subagent-driven-development` | **Preferred executor** — fresh subagent per task, two-stage review |
+|   | `executing-plans` | Fallback executor — batched, run in the main session |
+| 5 | `requesting-code-review` | Dispatch the `code-reviewer` subagent |
+| 6 | `receiving-code-review` | Handle review feedback without sycophancy |
+| 7 | `finishing-a-development-branch` | Verify + 4-option close (merge/PR/keep/discard) |
+
+Subroutines invoked **inside** step 4:
 
 | Skill | Purpose |
 |-------|---------|
-| `using-superpowers` | Bootstrap: how to find and invoke other skills |
-| `test-driven-development` | RED-GREEN-REFACTOR discipline |
+| `test-driven-development` | RED-GREEN-REFACTOR discipline for every task |
+| `systematic-debugging` | Root-cause investigation when something fails |
 | `verification-before-completion` | Evidence-based completion claims |
-| `systematic-debugging` | Root-cause investigation methodology |
-| `writing-plans` | Implementation plan authoring |
-| `executing-plans` | Sequential plan execution |
-| `requesting-code-review` | Dispatch the code-reviewer agent |
-| `receiving-code-review` | Handle review feedback constructively |
+
+Meta / bootstrap:
+
+| Skill | Purpose |
+|-------|---------|
+| `using-superpowers` | Bootstrap: how to find and invoke other skills (auto-injected) |
+
+### Flow diagram
+
+```
+/brainstorming → /using-git-worktrees → /writing-plans
+   → /subagent-driven-development (or /executing-plans)
+       └─ each task uses: /test-driven-development,
+                          /systematic-debugging (on failure),
+                          /verification-before-completion
+   → /requesting-code-review → /receiving-code-review
+   → /finishing-a-development-branch
+```
 
 ### Agent
 
