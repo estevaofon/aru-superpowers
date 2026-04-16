@@ -20,12 +20,36 @@ Run an implementation plan task-by-task in the current session. Each step checke
 2. You have a clean working tree, or an intentionally dirty one for this work.
 3. Tests currently pass (or the failing set is known).
 
+## Entering This Skill (MANDATORY FIRST ACTIONS)
+
+<CRITICAL-GATE>
+When the user asks you to implement / "vamos para implementação" / equivalent, and a plan file exists, your FIRST two actions are:
+
+1. `read_file("<plan-path>")` — load the plan content
+2. `create_task_list([...])` with **one entry per Task N in the plan** (NOT the /brainstorming checklist, NOT the /writing-plans checklist, NOT this skill's "Loop" sub-steps)
+
+Any previous checklist from `/brainstorming` or `/writing-plans` is now **STALE**. The new `create_task_list` call REPLACES it. Do not copy the brainstorming items ("Explore project context", "Ask clarifying questions", "Propose approaches", etc.) into the new list — those phases are already complete.
+</CRITICAL-GATE>
+
+**Concrete example** (if the plan has 4 tasks):
+
+```python
+create_task_list([
+    "Task 1: <short description from plan>",
+    "Task 2: <short description from plan>",
+    "Task 3: <short description from plan>",
+    "Task 4: <short description from plan>",
+])
+```
+
+If the plan has 16 steps across 4 tasks, the checklist has **4 items** (one per Task), not 16. Sub-steps are tracked inside each task as you execute, not in the top-level checklist.
+
 ## Loop
 
 For each task in order:
 
 1. **Read the task and all its steps** with `read_file`. Understand all of them before touching code.
-2. **Seed a checklist** via `create_task_list` mirroring the steps. Mark in_progress before starting a step, completed after verification.
+2. **Mark this task `in_progress`** via `update_task(index=N, status="in_progress")`. Do NOT call `create_task_list` again — the list was seeded during Entering This Skill.
 3. **RED step** — write the failing test. `bash("pytest ... -q")` and confirm it fails with the expected error.
 4. **GREEN step** — write minimal code. `bash("pytest ... -q")` until the failing test passes and no others break.
 5. **REFACTOR step** — only after green. Don't add behavior.

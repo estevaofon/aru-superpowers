@@ -97,6 +97,44 @@ Every non-trivial change flows through these skills, in this order. This matches
 
 Skipping the entry point (`/brainstorming`) is the #1 reason agents build the wrong thing. Even for a "tiny" change, a 30-second design discussion prevents 30 minutes of rework.
 
+## Transitioning Between Skills (CRITICAL)
+
+<CRITICAL-GATE>
+A skill is **completed** once its terminal state is reached (spec written and approved for brainstorming; plan file written for writing-plans; all plan tasks merged for executing-plans; etc.). Completed skills are NOT re-invoked in the same session.
+
+When the user gives a signal advancing to the next phase — "vamos para implementação", "implement", "go ahead", "próximo passo", "let's code" — and earlier skills are already completed, you MOVE FORWARD in the canonical workflow. You do NOT restart from step 1.
+</CRITICAL-GATE>
+
+### Transition rules
+
+| Just completed | User signal | Next skill |
+|----------------|-------------|-----------|
+| `/brainstorming` (spec written + approved) | "let's plan" / "write the plan" | `/writing-plans` |
+| `/writing-plans` (plan file written) | "let's implement" / "vamos para implementação" / "go" | `/subagent-driven-development` (preferred) or `/executing-plans` |
+| `/executing-plans` or `/subagent-driven-development` (all tasks green) | "review it" / "check the code" | `/requesting-code-review` |
+| `/requesting-code-review` (findings returned) | any acknowledgement | `/receiving-code-review` |
+| `/receiving-code-review` (blockers resolved) | "merge" / "ship it" / "finish" | `/finishing-a-development-branch` |
+
+### Checklist hygiene on transition
+
+When you enter a new skill, **any previous skill's task_list is STALE**. The new skill's own "Entering This Skill" section tells you what the new checklist should contain. Common pitfall:
+
+- ❌ User says "vamos para implementação" → agent recreates the `/brainstorming` 8-item checklist (Explore project context, Ask clarifying questions, etc.)
+- ✅ User says "vamos para implementação" → agent reads the plan file, calls `create_task_list` with **one entry per Task in the plan**, then enters the per-task loop
+
+If you find yourself about to call `create_task_list(["Explore project context", "Ask clarifying questions", "Propose approaches", ...])` when brainstorming is already done: STOP. That is the previous skill's checklist. Read the NEXT skill's "Entering This Skill" section first.
+
+### "I forgot where we are" recovery
+
+If you genuinely lost track of where in the workflow you are:
+
+1. Check the conversation for produced artifacts:
+   - `bash("ls docs/aru/specs/")` — if files exist, brainstorming is done for something
+   - `bash("ls docs/aru/plans/")` — if files exist, writing-plans is done for something
+   - `bash("git log --oneline main..HEAD")` — shows what has been implemented
+2. Match against the table above to find the next step.
+3. Do NOT default to `/brainstorming` when artifacts from later phases already exist.
+
 Skipping step 2 (`/using-git-worktrees`) is the #1 reason "experiments" pollute main. Always isolate before writing code.
 
 Skipping step 7 (`/finishing-a-development-branch`) leaves orphaned worktrees, un-merged branches, and uncommitted work the user forgets about.

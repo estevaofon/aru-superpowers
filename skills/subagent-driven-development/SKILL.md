@@ -45,6 +45,30 @@ Stay in this session? ─── no ──> /executing-plans (batched, with human
 - Two-stage review after each task: spec compliance first, then code quality
 - Faster iteration (no human-in-the-loop between tasks)
 
+## Entering This Skill (MANDATORY FIRST ACTIONS)
+
+<CRITICAL-GATE>
+When entering this skill (after `/writing-plans` or when the user says "implement" / "vamos para implementação" and a plan exists), your FIRST two actions are:
+
+1. `read_file("<plan-path>")` — load the plan content
+2. `create_task_list([...])` with **one entry per Task N in the plan** (NOT the /brainstorming checklist)
+
+Any previous checklist from `/brainstorming` or `/writing-plans` is now **STALE** and must be replaced. Do not copy brainstorming items ("Explore project context", "Propose approaches", etc.) into the new list — those phases are done.
+</CRITICAL-GATE>
+
+**Concrete example** (if the plan has 4 tasks):
+
+```python
+create_task_list([
+    "Task 1: <short summary from plan>",
+    "Task 2: <short summary from plan>",
+    "Task 3: <short summary from plan>",
+    "Task 4: <short summary from plan>",
+])
+```
+
+Per-task sub-tracking (implementer ran / spec review / code-quality review) lives in the subagent's own task_store via `fork_ctx()` — you do NOT need to enumerate those in the controller's checklist.
+
 ## The Process
 
 ```
