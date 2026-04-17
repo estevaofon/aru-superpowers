@@ -4,19 +4,20 @@ description: Use BEFORE any creative work — creating features, building compon
 argument-hint: "[idea-or-feature-topic]"
 user-invocable: true
 allowed-tools: read_file, read_files, glob_search, grep_search, list_directory, bash, write_file, create_task_list, update_task
+disallowed-tools: enter_plan_mode
 ---
+
+<HARD-GATE>
+Do NOT invoke any implementation skill, write code, scaffold any project, or take any implementation action until a design is presented and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+
+`enter_plan_mode` is blocked by this skill at the tool level (see `disallowed-tools` in the frontmatter) and will return a `BLOCKED` error. The correct path is: brainstorm → write spec to `docs/aru/specs/` via `write_file` → `invoke_skill("writing-plans")`.
+</HARD-GATE>
 
 # Brainstorming Ideas Into Designs
 
 Help turn ideas into fully formed designs and specs through natural, collaborative dialogue.
 
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you are building, present the design and get user approval.
-
-<HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
-
-If you are about to call `enter_plan_mode` or jump straight to `write_file` / `edit_file` for production code, STOP. Check: has a design been approved for this work? If not, run `/brainstorming` first.
-</HARD-GATE>
 
 ## Anti-Pattern: "This Is Too Simple To Need A Design"
 

@@ -4,6 +4,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 argument-hint: "[feature-description-or-path-to-spec]"
 user-invocable: true
 allowed-tools: read_file, read_files, write_file, grep_search, glob_search, list_directory, create_task_list, update_task
+disallowed-tools: enter_plan_mode
 ---
 
 # Writing Plans
@@ -103,6 +104,7 @@ pytest -q
 
 ## Anti-Patterns to Avoid
 
+- **Never call `enter_plan_mode`**: that tool stores plans in volatile session state and is blocked by this skill (the frontmatter declares `disallowed-tools: enter_plan_mode`). The plan MUST be a `.md` file written by `write_file` to `docs/aru/plans/YYYY-MM-DD-<feature>.md`. If you catch yourself wanting to call `enter_plan_mode`, re-read the "Final Output" section below.
 - **Placeholders**: No `TODO`, `...`, "similar to Task N", "etc". Fill everything in.
 - **Cross-task implicit deps**: if Task N depends on Task N-1, state the dependency explicitly.
 - **Missing file paths**: every step names the file by absolute path in the repo.
