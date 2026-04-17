@@ -15,6 +15,8 @@ Write implementation plans assuming the engineer has zero context for this codeb
 
 Assume a skilled but unfamiliar developer. Optimize the plan for someone reading top-to-bottom and executing step-by-step.
 
+**The plan is a roadmap, not the implementation.** The code is written by the engineer during `/executing-plans`, driven by failing tests (TDD). Do NOT pre-write full class bodies, full file contents, or full implementations in the plan. Show the *minimum snippet* the engineer needs to know *what* and *where* — the test defines the *how*.
+
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
 **Save plans to:** `docs/aru/plans/YYYY-MM-DD-<feature-name>.md` (or user-preferred location).
@@ -102,10 +104,40 @@ pytest -q
 - [ ] **Step 5: Commit**
 ````
 
+## Snippet Size Rule
+
+**Every code block in a plan must be ≤20 lines.** If it's longer, you are writing the implementation instead of the plan. Break it into smaller targeted edits, or describe the change in prose and let the failing test drive the full shape of the code.
+
+**Good** — shows the signature and the insertion point:
+
+```markdown
+- Modify: `entities.py:58` — in `Guard.__init__`, after `self.alive = True`, add:
+
+    ```python
+    self.alert = False
+    self.alert_target = None
+    ```
+```
+
+**Bad** — dumps a full class the engineer should derive from tests:
+
+```markdown
+- [ ] Step 1: Write the Camera class
+
+    ```python
+    class Camera:
+        def __init__(self, pos, angle_range, sweep_speed):
+            # ...60 more lines of implementation...
+    ```
+```
+
+In the bad example, the plan has *become* the implementation. That defeats TDD and blows up the output size.
+
 ## Anti-Patterns to Avoid
 
 - **Never call `enter_plan_mode`**: that tool stores plans in volatile session state and is blocked by this skill (the frontmatter declares `disallowed-tools: enter_plan_mode`). The plan MUST be a `.md` file written by `write_file` to `docs/aru/plans/YYYY-MM-DD-<feature>.md`. If you catch yourself wanting to call `enter_plan_mode`, re-read the "Final Output" section below.
-- **Placeholders**: No `TODO`, `...`, "similar to Task N", "etc". Fill everything in.
+- **Writing the implementation instead of the plan**: no full class bodies, no full file rewrites, no >20-line code blocks. Show signatures, insertion points, and test assertions. The engineer writes the body during `/executing-plans`.
+- **Placeholders**: No `TODO`, `...`, "similar to Task N", "etc". Describe the change concretely (file + line + intent) even when the code snippet itself is small.
 - **Cross-task implicit deps**: if Task N depends on Task N-1, state the dependency explicitly.
 - **Missing file paths**: every step names the file by absolute path in the repo.
 - **Unrooted tests**: every test has a concrete file path and a concrete command to run it.
@@ -116,6 +148,7 @@ After drafting the plan, read it end-to-end and check:
 
 - [ ] No `TODO`, `???`, or placeholders
 - [ ] Every code block has a file path
+- [ ] Every code block is ≤20 lines (longer ones = you wrote the implementation, not a plan)
 - [ ] Every step has a verification command
 - [ ] Type/imports are consistent across tasks
 - [ ] Spec requirements are ALL covered
