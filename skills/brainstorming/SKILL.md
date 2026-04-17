@@ -5,27 +5,32 @@ argument-hint: "[idea-or-feature-topic]"
 user-invocable: true
 allowed-tools: read_file, read_files, glob_search, grep_search, list_directory, bash, write_file, create_task_list, update_task
 disallowed-tools: enter_plan_mode
+reminder: "/brainstorming active. Do NOT write a spec to disk before 5 separate per-section approvals (4a architecture, 4b components, 4c data flow, 4d error handling, 4e testing). Picking an approach in Step 3 is NOT approving the design."
 ---
 
-<HARD-GATE>
-Do NOT invoke any implementation skill, write code, scaffold any project, or take any implementation action until a design is presented and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+# Brainstorming — Algorithm (read this first)
 
-`enter_plan_mode` is blocked by this skill at the tool level (see `disallowed-tools` in the frontmatter) and will return a `BLOCKED` error. The correct path is: brainstorm → write spec to `docs/aru/specs/` via `write_file` → `invoke_skill("writing-plans")`.
-</HARD-GATE>
+```
+STEP 1  explore project context (read AGENTS.md, README.md, git log, tree)
+STEP 2  ask clarifying questions — ONE per message
+STEP 3  propose 2–3 approaches — user picks ONE (this is NOT design approval)
+STEP 4  present design in FIVE separate messages:
+          4a architecture    → wait for user "yes" before 4b
+          4b components      → wait for user "yes" before 4c
+          4c data flow       → wait for user "yes" before 4d
+          4d error handling  → wait for user "yes" before 4e
+          4e testing         → wait for user "yes" before writing spec
+STEP 5  write_file docs/aru/specs/YYYY-MM-DD-<topic>-design.md
+STEP 6  self-review the spec inline
+STEP 7  user reviews the written spec
+STEP 8  invoke_skill("writing-plans", "<path>")
+```
 
-# Brainstorming Ideas Into Designs
+If your plan to finish brainstorming involves fewer than **5 user approvals between Step 3 and Step 5**, you are about to skip Step 4. Re-read this algorithm and start again.
 
-Help turn ideas into fully formed designs and specs through natural, collaborative dialogue.
+## Task list — COPY THIS EXACT LIST
 
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you are building, present the design and get user approval.
-
-## Anti-Pattern: "This Is Too Simple To Need A Design"
-
-Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
-
-## Checklist
-
-Seed a task list mirroring these items and complete them in order. Each Step-4 sub-item must be marked complete ONLY after the user has given an explicit approval for that section.
+This is NOT a template to paraphrase. The agent runtime only enforces per-section approvals if the list has all 13 items below, spelled exactly, as its FIRST action. Do not merge, do not abbreviate, do not skip — the list MUST have 13 items.
 
 ```
 create_task_list([
@@ -45,7 +50,23 @@ create_task_list([
 ])
 ```
 
-**Gate:** You cannot mark any Step 4 sub-item complete in the same message where you presented it. The user must respond first. A checklist with Step 4a–4e all completed in one turn is proof that Step 4 was skipped.
+**Hard gate:** You cannot mark any Step 4 sub-item complete in the same message where you presented it — the user must respond between. A checklist with Steps 4a–4e all completed in one assistant turn is mechanical proof that Step 4 was skipped; restart from 4a.
+
+<HARD-GATE>
+Do NOT invoke any implementation skill, write code, scaffold any project, or take any implementation action until a design is presented and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
+
+`enter_plan_mode` is blocked by this skill at the tool level (see `disallowed-tools` in the frontmatter) and will return a `BLOCKED` error. The correct path is: brainstorm → write spec to `docs/aru/specs/` via `write_file` → `invoke_skill("writing-plans")`.
+</HARD-GATE>
+
+# Brainstorming Ideas Into Designs
+
+Help turn ideas into fully formed designs and specs through natural, collaborative dialogue.
+
+Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you are building, present the design and get user approval.
+
+## Anti-Pattern: "This Is Too Simple To Need A Design"
+
+Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
 
 ## Process Flow
 
