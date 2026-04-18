@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/OneDrive/Documentos/python_projects/aru/**)",
+      "Read(//d/OneDrive/Documentos/python_projects/**)",
+      "Bash(find *)"
+    ]
+  }
+}

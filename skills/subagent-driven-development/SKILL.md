@@ -106,6 +106,56 @@ Read plan file ONCE
     3. After fixes: invoke_skill(name="finishing-a-development-branch")
 ```
 
+## Task Dependency Assessment
+
+After extracting all tasks from the plan, classify each one **before dispatching**:
+
+- **Sequential**: Task B imports types Task A creates, modifies files Task A wrote, or builds on Task A's output. Must wait for A to finish.
+- **Independent**: Tasks touch disjoint files and share no output with siblings. Safe to run in parallel.
+
+### How to dispatch parallel tasks
+
+When tasks are independent, emit ALL their `delegate_task` calls in **one assistant response** — do NOT wait between them. Aru runs concurrent calls via `asyncio.gather`; calls spread across separate responses run sequentially even when the tasks don't depend on each other.
+
+```python
+# Tasks 3, 4, 5 touch different modules — dispatch ALL in one response → concurrent:
+delegate_task(task="Task 3: Player class", context="Only touch src/player.py. ...")
+delegate_task(task="Task 4: Obstacles",   context="Only touch src/obstacles.py. ...")
+delegate_task(task="Task 5: UI",          context="Only touch src/ui.py. ...")
+# ↑ You receive all three results before continuing. Do NOT split these across turns.
+```
+
+Sequential tasks dispatch one per response:
+
+```python
+# Task 1 must finish before Task 2 can use its output
+delegate_task(task="Task 1: Scaffolding", context="...")
+# ← wait for result; only then, in the NEXT response:
+delegate_task(task="Task 2: Constants module", context="...")
+```
+
+### Safety check before batching
+
+| Question | Answer | Action |
+|---|---|---|
+| Do any two tasks write the same file? | yes | sequential |
+| Does task B read output task A produces? | yes | sequential |
+| Both conditions false? | — | safe to batch in one response |
+
+### Typical dispatch shape for a 10-task plan
+
+```
+Response 1: delegate task 1 (scaffolding — everything depends on it)
+Response 2: delegate task 2 (constants — next layer of dependency)
+Response 3: delegate tasks 3 + 4 + 5 + 6 in ONE response (independent modules)
+Response 4: review results from tasks 3–6, then delegate task 7 (integration)
+...
+```
+
+### Reviews after a parallel group
+
+After all tasks in a group return, run reviews **sequentially per task** — spec compliance first, then code quality for each. Only mark a task complete when both reviewers approve.
+
 ## Setup Before Starting
 
 1. **Worktree** — run `/using-git-worktrees` first unless you've explicitly decided to work on main
@@ -193,7 +243,7 @@ delegate_task(
 - Start implementation on `main`/`master` without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
-- Dispatch multiple implementer subagents in parallel on the same files (file conflicts)
+- Dispatch multiple implementer subagents that write the same files in parallel (last-write-wins conflict) — parallel dispatch is fine when tasks have disjoint files
 - Make the subagent read the plan file (provide full text in `context` instead)
 - Skip scene-setting context (subagent needs to understand where task fits)
 - Ignore subagent questions (answer before letting them proceed)
