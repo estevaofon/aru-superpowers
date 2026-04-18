@@ -23,11 +23,11 @@ delegate_task(
         # --- Job ---
         "## Your Job\n"
         "1. Implement exactly what the task specifies\n"
-        "2. Follow /test-driven-development (RED before GREEN, no exceptions)\n"
-        "3. Verify implementation works: bash('pytest -q') or project equivalent\n"
-        "4. Commit: git add ... && git commit -m 'task N: <summary>'\n"
-        "5. Self-review (see checklist below)\n"
-        "6. Report back\n\n"
+        "2. Write test → run once (confirm RED) → implement → run once (confirm GREEN) → stop.\n"
+        "   Do not re-run to double-check. Once green, it's green.\n"
+        "3. Commit: git add ... && git commit -m 'task N: <summary>'\n"
+        "4. Self-review (see checklist below)\n"
+        "5. Report back\n\n"
 
         # --- Work directory ---
         "Work from: <absolute path to worktree or project root>\n\n"
