@@ -168,7 +168,12 @@ Write the plan to `docs/aru/plans/YYYY-MM-DD-<feature>.md` with `write_file` and
 
 ## Transition to Implementation
 
-When the user approves the plan and signals readiness to implement:
+<CRITICAL-GATE>
+After writing the plan and announcing its path, **STOP. Do not call `invoke_skill` yet.**
+
+Wait for the user to send an explicit message signalling readiness — e.g. "implement", "vamos para implementação", "go", "can you implement this". Permission clicks ("Yes" on a write dialog) are NOT a signal to proceed. Tool approval is file-system authorization, not plan approval.
+
+Only after receiving an explicit user message:
 
 ```python
 # Preferred (fresh subagent per task, two-stage review):
@@ -178,4 +183,5 @@ invoke_skill(name="subagent-driven-development", arguments="docs/aru/plans/<your
 invoke_skill(name="executing-plans", arguments="docs/aru/plans/<your-plan>.md")
 ```
 
-**CRITICAL:** Use `invoke_skill`. Do NOT try to execute the plan from memory — the implementation skills have `<CRITICAL-GATE>` "Entering This Skill" sections that mandate reading the plan and rebuilding the task_list from plan tasks. Improvising reuses the stale brainstorming/writing-plans checklist.
+**CRITICAL:** Use `invoke_skill`. Do NOT execute the plan from memory — the implementation skills have `<CRITICAL-GATE>` "Entering This Skill" sections that mandate reading the plan and rebuilding the task_list from plan tasks. Improvising reuses the stale brainstorming/writing-plans checklist.
+</CRITICAL-GATE>
