@@ -135,7 +135,7 @@ In the bad example, the plan has *become* the implementation. That defeats TDD a
 
 ## Anti-Patterns to Avoid
 
-- **Never call `enter_plan_mode`**: that tool stores plans in volatile session state and is blocked by this skill (the frontmatter declares `disallowed-tools: enter_plan_mode`). The plan MUST be a `.md` file written by `write_file` to `docs/aru/plans/YYYY-MM-DD-<feature>.md`. If you catch yourself wanting to call `enter_plan_mode`, re-read the "Final Output" section below.
+- **Never call `enter_plan_mode`**: that tool stores plans in volatile session state and is blocked by this skill (the frontmatter declares `disallowed-tools: enter_plan_mode`). The plan MUST be a `.md` file written by `write_file` to `docs/aru/plans/YYYY-MM-DD-<feature>.md`. If you catch yourself wanting to call `enter_plan_mode`, re-read the "Execution Handoff" section below.
 - **Writing the implementation instead of the plan**: no full class bodies, no full file rewrites, no >20-line code blocks. Show signatures, insertion points, and test assertions. The engineer writes the body during `/executing-plans`.
 - **Placeholders**: No `TODO`, `...`, "similar to Task N", "etc". Describe the change concretely (file + line + intent) even when the code snippet itself is small.
 - **Cross-task implicit deps**: if Task N depends on Task N-1, state the dependency explicitly.
@@ -162,26 +162,35 @@ If any box fails, fix the plan before handing it off.
 - `/executing-plans` — how to execute the plan you just wrote
 - `/verification-before-completion` — how to prove each task done
 
-## Final Output
+## Execution Handoff
 
-Write the plan to `docs/aru/plans/YYYY-MM-DD-<feature>.md` with `write_file` and announce the path to the user.
-
-## Transition to Implementation
+Write the plan to `docs/aru/plans/YYYY-MM-DD-<feature>.md` with `write_file`, then offer the user a choice of execution path — do NOT pick one yourself.
 
 <CRITICAL-GATE>
-After writing the plan and announcing its path, **STOP. Do not call `invoke_skill` yet.**
+After saving the plan, present this exact block to the user and STOP. Do not call `invoke_skill` yet — wait for the user's reply.
 
-Wait for the user to send an explicit message signalling readiness — e.g. "implement", "vamos para implementação", "go", "can you implement this". Permission clicks ("Yes" on a write dialog) are NOT a signal to proceed. Tool approval is file-system authorization, not plan approval.
+> **Plan complete and self-reviewed.** `<one-line self-review summary: spec coverage / placeholders / type consistency>`.
+>
+> Plan saved to `docs/aru/plans/<filename>.md`.
+>
+> **Two execution options:**
+>
+> **1. Subagent-Driven (recommended)** — Fresh subagent per task, two-stage review between tasks, fast iteration.
+>
+> **2. Inline Execution** — Execute tasks in this session using `/executing-plans`, sequential with checkpoints.
+>
+> **Which approach?**
 
-Only after receiving an explicit user message:
+Permission clicks ("Yes" on a write dialog) are NOT a choice signal — they authorise file I/O, not an execution path.
+</CRITICAL-GATE>
 
-```python
-# Preferred (fresh subagent per task, two-stage review):
-invoke_skill(name="subagent-driven-development", arguments="docs/aru/plans/<your-plan>.md")
+### Interpreting the user's reply
 
-# Fallback (sequential execution in main session):
-invoke_skill(name="executing-plans", arguments="docs/aru/plans/<your-plan>.md")
-```
+| User says | Invoke |
+|-----------|--------|
+| "1", "subagent", "subagent-driven", "recommended", "option 1" | `invoke_skill(name="subagent-driven-development", arguments="docs/aru/plans/<your-plan>.md")` |
+| "2", "inline", "executing-plans", "in-session", "option 2" | `invoke_skill(name="executing-plans", arguments="docs/aru/plans/<your-plan>.md")` |
+| "implement", "go", "vamos para implementação" without picking a number | Re-ask: "Which option — 1 (Subagent-Driven) or 2 (Inline)?" |
+| Anything else | Ask for clarification before invoking. |
 
 **CRITICAL:** Use `invoke_skill`. Do NOT execute the plan from memory — the implementation skills have `<CRITICAL-GATE>` "Entering This Skill" sections that mandate reading the plan and rebuilding the task_list from plan tasks. Improvising reuses the stale brainstorming/writing-plans checklist.
-</CRITICAL-GATE>

@@ -77,9 +77,10 @@ Every non-trivial change flows through these skills, in this order. This matches
       ↓ clean baseline, tests passing
 3. /writing-plans               ← convert spec into bite-sized task checklist
       ↓ produces a plan doc in docs/aru/plans/
-4. /subagent-driven-development (preferred, fresh subagent per task)
+4. /writing-plans asks the user to pick ONE:
+   /subagent-driven-development (fresh subagent per task, two-stage review)
       — OR —
-   /executing-plans             (fallback: batched, in main session)
+   /executing-plans             (sequential, in main session, checkpointed)
       ↓ per task, internally uses:
          /test-driven-development    (RED → GREEN → REFACTOR)
          /systematic-debugging       (when something fails)
@@ -112,7 +113,7 @@ Use the `invoke_skill` tool to load the next skill. Do NOT wait for the user to 
 | Just completed | User signal | How to transition |
 |----------------|-------------|-------------------|
 | `/brainstorming` (spec approved) | "let's plan" / "write the plan" | `invoke_skill(name="writing-plans", arguments="<spec-path>")` |
-| `/writing-plans` (plan written) | "let's implement" / "vamos para implementação" / "go" | `invoke_skill(name="subagent-driven-development", arguments="<plan-path>")` (preferred) or `invoke_skill(name="executing-plans", arguments="<plan-path>")` |
+| `/writing-plans` (plan written) | "let's implement" / "vamos para implementação" / "go" | `/writing-plans` itself asks the user to pick 1 (Subagent-Driven) or 2 (Inline/Executing-plans) before invoking. Do NOT transition silently. |
 | `/executing-plans` or `/subagent-driven-development` (all tasks green) | "review it" / "check the code" | `invoke_skill(name="requesting-code-review")` |
 | `/requesting-code-review` (findings returned) | any acknowledgement | `invoke_skill(name="receiving-code-review")` |
 | `/receiving-code-review` (blockers resolved) | "merge" / "ship it" / "finish" | `invoke_skill(name="finishing-a-development-branch")` |

@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: Use when implementing an existing plan file in a single session, step by step. Sequential fallback when subagent dispatch isn't in play.
+description: Use when implementing an existing plan file in the current session, step by step with checkpointed verification. Chosen by the user at the writing-plans handoff as the inline-execution option.
 argument-hint: "[path-to-plan.md]"
 user-invocable: true
 allowed-tools: read_file, read_files, write_file, edit_file, bash, grep_search, glob_search, list_directory, create_task_list, update_task, update_plan_step

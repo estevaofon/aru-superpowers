@@ -1,6 +1,6 @@
 ---
 name: subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session. Preferred over /executing-plans when you want fresh context per task and two-stage review (spec then quality).
+description: Use when executing an implementation plan by dispatching a fresh subagent per task with two-stage review (spec compliance then code quality) between tasks. Chosen by the user at the writing-plans handoff as the subagent-driven option.
 argument-hint: "[path-to-plan.md]"
 user-invocable: true
 allowed-tools: read_file, read_files, bash, delegate_task, create_task_list, update_task, update_plan_step

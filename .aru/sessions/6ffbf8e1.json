@@ -1,0 +1,14 @@
+{
+  "session_id": "6ffbf8e1",
+  "history": [],
+  "current_plan": null,
+  "plan_task": null,
+  "plan_steps": [],
+  "plan_mode": false,
+  "active_skills": {},
+  "invoked_skills": {},
+  "model_ref": "alibabacloud/qwen3.6-plus",
+  "cwd": "D:\\OneDrive\\Documentos\\python_projects\\aru-superpowers",
+  "created_at": "2026-04-18T17:06:42.282",
+  "updated_at": "2026-04-18 17:08:42"
+}
