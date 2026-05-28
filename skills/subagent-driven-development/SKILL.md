@@ -24,6 +24,12 @@ Aru's concurrency model is different from Claude Code's `Task` tool:
 - Subagents **share the working directory**. If they edit the same files, the last write wins. For true isolation, start inside a git worktree (`/using-git-worktrees`) before dispatching.
 - The `code-reviewer` agent shipped with this plugin is a subagent (`mode: subagent`) — dispatch with `delegate_task(task="...", agent_name="code-reviewer", context="...")`.
 
+### One user turn = ALL tasks, not one task
+
+The entire plan is executed in a **single user turn**. Each `delegate_task` call internally produces a tool_call/tool_result pair within that turn; after the result lands, the agentic loop continues to your next assistant message *in the same turn*, where you dispatch the next subagent. Do **NOT** end the turn between tasks. End the turn only when (a) every task in the list is marked completed/failed/skipped, (b) a real blocker needs the user, or (c) the final review workflow concludes.
+
+The numbered "Response 1 / Response 2 / …" labels in the Typical dispatch shape section below refer to **consecutive assistant messages inside the same agentic turn** — not to separate user-agent turns. A handoff between you and the user is not implied.
+
 ## When to Use
 
 ```
@@ -71,12 +77,14 @@ Per-task sub-tracking (implementer ran / spec review / code-quality review) live
 
 ## The Process
 
+The entire flow below executes in ONE user turn. Each downward arrow is your next assistant message after the previous tool returned — not a hand-back to the user.
+
 ```
 Read plan file ONCE
   └─> Extract all tasks with full text + context
       └─> create_task_list([task_1, task_2, ...])
           │
-          ▼  (per task, in order)
+          ▼  (per task, in order — same turn, next assistant message)
       Dispatch implementer subagent (./implementer-prompt.md template)
           │
           ├── Subagent asks a question? → Answer, re-dispatch
@@ -97,7 +105,7 @@ Read plan file ONCE
           │
       update_task(idx, "completed")
           │
-          ▼  (next task)
+          ▼  (next task — STILL the same user turn; do NOT yield)
   After all tasks:
     1. Dispatch FINAL code-reviewer over the whole diff via:
          delegate_task(task="...", agent_name="code-reviewer")
@@ -144,13 +152,21 @@ delegate_task(task="Task 2: Constants module", context="...")
 
 ### Typical dispatch shape for a 10-task plan
 
+All dispatches below happen **within the same user turn** — each numbered step is the next assistant message after the previous batch's tool_results have returned. There is no user input between steps.
+
 ```
-Response 1: delegate task 1 (scaffolding — everything depends on it)
-Response 2: delegate task 2 (constants — next layer of dependency)
-Response 3: delegate tasks 3 + 4 + 5 + 6 in ONE response (independent modules)
-Response 4: review results from tasks 3–6, then delegate task 7 (integration)
+Step 1 (assistant msg): delegate task 1 (scaffolding — everything depends on it)
+        ← receive tool_result, continue in the same turn
+Step 2 (assistant msg): delegate task 2 (constants — next layer of dependency)
+        ← receive tool_result, continue in the same turn
+Step 3 (assistant msg): delegate tasks 3 + 4 + 5 + 6 in ONE assistant message (independent modules)
+        ← receive all four tool_results, continue in the same turn
+Step 4 (assistant msg): review results from tasks 3–6, then delegate task 7 (integration)
 ...
+Final step: when every task is completed/failed and the final code review is done, yield to the user.
 ```
+
+**Anti-pattern (do not do this):** ending the turn after Step 1 with "Task 1 done. Next: Task 2" or "Se quiser, sigo para a Task 2" — this defeats the entire skill, because the user now has to type "continue" before each task and you've reintroduced the human-in-the-loop overhead this skill exists to eliminate.
 
 ### Reviews after a parallel group
 

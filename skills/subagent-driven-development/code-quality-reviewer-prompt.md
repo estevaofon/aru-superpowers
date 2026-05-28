@@ -67,6 +67,8 @@ delegate_task(
 
 ## Handling the result
 
-- **No Critical or Important issues** → mark Task N complete with `update_task`, move on to the next task
+- **No Critical or Important issues** → mark Task N complete with `update_task`, then **immediately** dispatch the implementer for Task N+1 in your next assistant message (same user turn — do NOT yield to the user)
 - **Critical or Important issues** → re-dispatch the implementer with the issue list → re-run this quality review → repeat until clean
-- **Only Suggestions** → optional: apply if cheap, otherwise skip. Mark task complete.
+- **Only Suggestions** → optional: apply if cheap, otherwise skip. Mark task complete, then dispatch Task N+1 in the same turn.
+
+The turn yields only when the last task is complete and the final review workflow concludes — never between Task N and Task N+1.
